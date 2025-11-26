@@ -1,13 +1,14 @@
 import os
 import json
 import requests
+import smtplib
+from email.message import EmailMessage
 from datetime import datetime, timezone
 import random
-from twilio.rest import Client
 from requests.exceptions import ProxyError, Timeout, HTTPError
 
 # --- Google Cloud Firestore and Firebase Admin SDK Setup ---
-from firebase_admin import initialize_app, firestore
+from firebase_admin import initialize_app, firestore, messaging # ADDED: messaging
 from google.cloud.exceptions import NotFound
 
 try:
@@ -23,10 +24,9 @@ except Exception as e:
 TICKETMASTER_API_KEY = os.getenv("TICKETMASTER_API_KEY", "YOUR_TICKETMASTER_API_KEY")
 MOCK_ROOT_COLLECTION = os.getenv("MOCK_ROOT_COLLECTION", "worker_monitor_jobs")
 
-# Twilio Credentials
-TWILIO_ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID")
-TWILIO_AUTH_TOKEN = os.getenv("TWILIO_AUTH_TOKEN")
-TWILIO_FROM_NUMBER = os.getenv("TWILIO_FROM_NUMBER") 
+# Gmail Credentials (REPLACES Twilio)
+GMAIL_USER = os.getenv("GMAIL_USER")
+GMAIL_APP_PASSWORD = os.getenv("GMAIL_APP_PASSWORD")
 
 # Proxy Configuration
 PROXY_URL = os.getenv("PROXY_URL")
@@ -35,21 +35,12 @@ PROXY_URL = os.getenv("PROXY_URL")
 TM_AUTH_COOKIE = os.getenv("TM_AUTH_COOKIE")
 TM_QUEUE_TOKEN = os.getenv("TM_QUEUE_TOKEN")
 
-# Initialize Twilio Client
-TWILIO_CLIENT = None
-if TWILIO_ACCOUNT_SID and TWILIO_AUTH_TOKEN:
-    try:
-        TWILIO_CLIENT = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
-        print("Twilio client initialized.")
-    except Exception as e:
-        print(f"Error initializing Twilio client: {e}")
-
 # Target API Endpoint: Using the general Inventory Status URL but requiring the specific tokens/headers
 TM_API_ENDPOINT = "https://app.ticketmaster.com/inventory-status/v1/availability"
 
 # --- Notification Utility ---
-def send_notification(job_id, contact, event_id, status, price_min, price_max):
-    """Sends SMS notification via Twilio or prints a mock message, handling E.164 format reminder."""
+def send_notification(job_id, contact_email, fcm_token, event_id, status, price_min, price_max):
+    """Sends Gmail notification and FCM push notification."""
     
     price_range_str = f"($USD {price_min} - $USD {price_max})" if price_min else "(Price Unknown)"
     
@@ -59,28 +50,55 @@ def send_notification(job_id, contact, event_id, status, price_min, price_max):
         f"Price Range: {price_range_str}\n"
         f"Buy Now: [Check Ticketmaster app/site]"
     )
-    
-    # Check if contact is a valid E.164 number and client is initialized
-    if TWILIO_CLIENT and contact and contact.startswith('+'):
+
+    # --- 1. GMAIL (SMTP) Notification ---
+    if GMAIL_USER and GMAIL_APP_PASSWORD and contact_email:
+        msg = EmailMessage()
+        msg.set_content(notification_content)
+        msg['Subject'] = f"🚨 TICKET ALERT: Tickets Available for {event_id}"
+        msg['From'] = GMAIL_USER
+        msg['To'] = contact_email
+
         try:
-            TWILIO_CLIENT.messages.create(
-                to=contact,
-                from_=TWILIO_FROM_NUMBER,
-                body=notification_content
-            )
-            print(f"SMS notification sent to {contact} for job {job_id[:8]}...")
+            with smtplib.SMTP_SSL('smtp.gmail.com', 465) as server:
+                server.login(GMAIL_USER, GMAIL_APP_PASSWORD)
+                server.send_message(msg)
+            print(f"Gmail notification sent to {contact_email} for job {job_id[:8]}...")
         except Exception as e:
-            print(f"ERROR sending Twilio SMS to {contact}: {e}")
+            print(f"ERROR sending Gmail email to {contact_email}: {e}")
+            if not GMAIL_APP_PASSWORD:
+                 print("NOTE: Ensure GMAIL_APP_PASSWORD is correctly set as an App Password, not your main password.")
     else:
-        print(f"--- MOCK NOTIFICATION SENT ---\nTarget: {contact}\n{notification_content}\n-------------------------")
-        if not TWILIO_CLIENT:
-             print("NOTE: Twilio client not configured. Set TWILIO_* environment variables for real SMS.")
-        if contact and not contact.startswith('+'):
-             # E.164 Format Reminder (Required per prompt)
-             print("REMINDER (E.164 Format): Contact number must be in E.164 format (e.g., +12025550100) for real SMS.")
+        print(f"--- MOCK EMAIL NOTIFICATION SENT ---\nTarget: {contact_email}\n{notification_content}\n-------------------------")
+        if not GMAIL_USER:
+            print("NOTE: Gmail credentials not configured. Set GMAIL_USER/GMAIL_APP_PASSWORD environment variables for real email.")
 
 
-# --- Critical Polling Logic ---
+    # --- 2. FCM (Firebase Cloud Messaging) Push Notification ---
+    if fcm_token:
+        try:
+            # Construct the push notification payload
+            message = messaging.Message(
+                notification=messaging.Notification(
+                    title=f"🚨 TICKET ALERT: {event_id} 🚨",
+                    body=f"Status: {status.replace('_', ' ')}. Price: {price_range_str}"
+                ),
+                data={
+                    'jobId': job_id,
+                    'eventId': event_id,
+                },
+                token=fcm_token,
+            )
+            # Send the message
+            response = messaging.send(message)
+            print(f"FCM Push notification sent successfully for job {job_id[:8]}...: {response}")
+        except Exception as e:
+            print(f"ERROR sending FCM push notification: {e}")
+            print("NOTE: FCM requires the device to have the app installed, token saved to Firestore, and proper IAM permissions.")
+
+
+# --- Critical Polling Logic (No changes needed here for functionality) ---
+# ... (check_event_status remains the same)
 def check_event_status(event_id):
     """
     Hardened check of the Ticketmaster inventory status using session tokens and proxy.
@@ -217,10 +235,11 @@ def ticket_monitor_worker(request=None):
             job_data = job_doc.to_dict()
             job_id = job_doc.id
             event_id = job_data.get('eventID')
-            contact = job_data.get('contact')
+            contact_email = job_data.get('contact') # Renamed variable to reflect content change
+            fcm_token = job_data.get('fcm_token') # ASSUME FCM token is stored in the document
             
-            if not event_id or not contact:
-                print(f"Skipping job {job_id[:8]}...: Missing eventID or contact.")
+            if not event_id or not contact_email:
+                print(f"Skipping job {job_id[:8]}...: Missing eventID or contact (email).")
                 continue
 
             # 1. Check current availability
@@ -253,7 +272,8 @@ def ticket_monitor_worker(request=None):
             if is_newly_available:
                 send_notification(
                     job_id, 
-                    contact, 
+                    contact_email, # Now passing email
+                    fcm_token,     # Now passing FCM token
                     event_id, 
                     new_status_key, 
                     new_availability_data.get('priceMin'), 

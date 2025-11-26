@@ -1,5 +1,8 @@
 from flask import Flask, render_template_string, send_from_directory
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = Flask(__name__)
 
@@ -62,14 +65,14 @@ def index():
       }};
 
       // Global configuration placeholders
-      window.__app_id = "ticket-scout-demo"; 
+      window.__app_id = "ticket-scout-ymmc"; // Updated app_id for clarity
       window.__firebase_config = {{
-        apiKey: "YOUR_API_KEY",
-        authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-        projectId: "YOUR_PROJECT_ID",
-        storageBucket: "YOUR_PROJECT_ID.appspot.com",
-        messagingSenderId: "YOUR_SENDER_ID",
-        appId: "YOUR_APP_ID"
+        apiKey: "{os.getenv('FIREBASE_API_KEY', 'YOUR_API_KEY')}",
+        authDomain: "ymmc-2d266.firebaseapp.com",
+        projectId: "ymmc-2d266",
+        storageBucket: "ymmc-2d266.appspot.com",
+        messagingSenderId: "{os.getenv('FIREBASE_MESSAGING_SENDER_ID', 'YOUR_SENDER_ID')}",
+        appId: "{os.getenv('FIREBASE_APP_ID', 'YOUR_APP_ID')}"
       }};
       window.__initial_auth_token = null; 
     </script>

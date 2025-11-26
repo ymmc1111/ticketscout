@@ -15,7 +15,7 @@ const mockDb = {
         {
             id: 'mock-1',
             eventID: 'JIMMY-HENDRIX-EXP',
-            contact: 'Jimmy Hendrix',
+            contact: 'jimmy.hendrix@mail.com', // UPDATED TO EMAIL
             status: 'ACTIVE',
             mode: 'DEMO',
             createdAt: new Date(),
@@ -267,12 +267,12 @@ const App = () => {
                             </div>
 
                             <div className="border-b-2 border-black p-4 group focus-within:bg-[#FF4500]/5 transition-colors">
-                                <label className="block text-[10px] font-bold uppercase mb-2 text-gray-500 group-focus-within:text-[#FF4500]">Contact (E.164)</label>
+                                <label className="block text-[10px] font-bold uppercase mb-2 text-gray-500 group-focus-within:text-[#FF4500]">Contact (Email Address)</label> {/* UPDATED LABEL */}
                                 <input
-                                    type="text"
+                                    type="email" // Changed type for better mobile/browser experience
                                     value={contact}
                                     onChange={(e) => setContact(e.target.value)}
-                                    placeholder="+1..."
+                                    placeholder="ENTER_EMAIL..." // UPDATED PLACEHOLDER
                                     className="w-full bg-transparent text-xl font-bold uppercase outline-none placeholder-gray-300 font-mono"
                                     required
                                 />
@@ -368,7 +368,7 @@ const App = () => {
 
                                         <div className="flex gap-8 mt-2">
                                             <div>
-                                                <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Contact</div>
+                                                <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Contact (Email)</div>
                                                 <div className="font-mono text-sm">{job.contact}</div>
                                             </div>
                                             <div>
