@@ -8,7 +8,7 @@ on:
 env:
   PROJECT_ID: black-hulling-359518
   SERVICE_NAME: ticket-scout
-  REGION: us-central1
+  REGION: us-west1
 
 jobs:
   deploy:
