@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { initializeApp } from "firebase/app";
 import { getFirestore, collection, addDoc, deleteDoc, doc, query, onSnapshot, orderBy, serverTimestamp } from "firebase/firestore";
-import { getAuth, signInWithCustomToken } from "firebase/auth";
+import { getAuth, signInWithCustomToken, signInAnonymously } from "firebase/auth";
 
 // Initialize Firebase
 const firebaseConfig = window.__firebase_config || {};
@@ -115,7 +115,15 @@ const App = () => {
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged((u) => {
             console.log("Auth State Changed:", u);
-            setUser(u);
+            if (u) {
+                setUser(u);
+            } else {
+                console.log("No user signed in. Attempting Anonymous Auth...");
+                signInAnonymously(auth).catch((error) => {
+                    console.error("Anonymous Auth Failed:", error);
+                    alert("Auth Failed: Enable Anonymous Auth in Firebase Console!");
+                });
+            }
         });
         return unsubscribe;
     }, []);
