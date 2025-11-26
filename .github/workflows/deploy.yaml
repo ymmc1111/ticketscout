@@ -34,12 +34,13 @@ jobs:
           service: ${{ env.SERVICE_NAME }}
           region: ${{ env.REGION }}
           source: .
+          secrets: |
+            FIREBASE_API_KEY=FIREBASE_API_KEY:latest
+            FIREBASE_MESSAGING_SENDER_ID=FIREBASE_MESSAGING_SENDER_ID:latest
+            FIREBASE_APP_ID=FIREBASE_APP_ID:latest
+            GMAIL_USER=GMAIL_USER:latest
+            GMAIL_APP_PASSWORD=GMAIL_APP_PASSWORD:latest
+            TICKETMASTER_API_KEY=TICKETMASTER_API_KEY:latest
           env_vars: |
-            FIREBASE_API_KEY=${{ secrets.FIREBASE_API_KEY }}
-            FIREBASE_MESSAGING_SENDER_ID=${{ secrets.FIREBASE_MESSAGING_SENDER_ID }}
-            FIREBASE_APP_ID=${{ secrets.FIREBASE_APP_ID }}
-            GMAIL_USER=${{ secrets.GMAIL_USER }}
-            GMAIL_APP_PASSWORD=${{ secrets.GMAIL_APP_PASSWORD }}
-            TICKETMASTER_API_KEY=${{ secrets.TICKETMASTER_API_KEY }}
             TM_AUTH_COOKIE=${{ secrets.TM_AUTH_COOKIE }}
             TM_QUEUE_TOKEN=${{ secrets.TM_QUEUE_TOKEN }}
