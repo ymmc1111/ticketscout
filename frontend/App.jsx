@@ -134,6 +134,7 @@ const App = () => {
         if (isConfigured) {
             // Requirement: /artifacts/{appId}/users/{userId}/ticket_monitors
             const path = `artifacts/${window.__app_id}/users/${user.uid}/ticket_monitors`;
+            console.log("Listening to Firestore Path:", path);
             const q = query(collection(db, path), orderBy("createdAt", "desc"));
 
             const unsubscribe = onSnapshot(q, (snapshot) => {
