@@ -30,13 +30,13 @@ def index():
     <!-- Import Map for Firebase and React -->
     <script type="importmap">
     {{
-      "imports": {{
+      "imports": {
         "react": "https://esm.sh/react@18",
         "react-dom/client": "https://esm.sh/react-dom@18/client",
-        "firebase/app": "https://esm.sh/firebase@10.7.1/app",
-        "firebase/firestore": "https://esm.sh/firebase@10.7.1/firestore",
-        "firebase/auth": "https://esm.sh/firebase@10.7.1/auth"
-      }}
+        "firebase/app": "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js",
+        "firebase/firestore": "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js",
+        "firebase/auth": "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"
+      }
     }}
     </script>
     
