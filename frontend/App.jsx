@@ -114,6 +114,7 @@ const App = () => {
 
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged((u) => {
+            console.log("Auth State Changed:", u);
             setUser(u);
         });
         return unsubscribe;
