@@ -65,6 +65,41 @@ if (isConfigured) {
     };
 }
 
+
+
+// --- COMPONENTS ---
+const ConfirmationModal = ({ isOpen, onClose, onConfirm, title, message }) => {
+    if (!isOpen) return null;
+    return (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose}></div>
+            <div className="relative bg-white border-2 border-black p-6 w-full max-w-md shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+                <div className="bg-red-500 text-white text-[10px] font-bold uppercase tracking-widest px-2 py-1 inline-block mb-4">
+                    Warning: Irreversible Action
+                </div>
+                <h3 className="text-xl font-bold uppercase mb-2">{title}</h3>
+                <p className="font-mono text-xs text-gray-600 mb-6 leading-relaxed">
+                    {message}
+                </p>
+                <div className="flex gap-4">
+                    <button
+                        onClick={onClose}
+                        className="flex-1 h-12 border-2 border-black font-bold uppercase hover:bg-gray-100 transition-colors text-xs"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        onClick={onConfirm}
+                        className="flex-1 h-12 bg-red-500 text-white font-bold uppercase hover:bg-red-600 transition-colors text-xs"
+                    >
+                        Confirm Archive
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
 const App = () => {
     const [jobs, setJobs] = useState([]);
     const [eventId, setEventId] = useState("");
@@ -72,6 +107,10 @@ const App = () => {
     const [loading, setLoading] = useState(false);
     const [user, setUser] = useState(null);
     const [isDemoMode, setIsDemoMode] = useState(true); // Default to Demo
+
+    // Modal State
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [jobToDelete, setJobToDelete] = useState(null);
 
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged((u) => {
@@ -135,15 +174,23 @@ const App = () => {
         setLoading(false);
     };
 
-    const handleDelete = async (jobId) => {
-        if (!confirm("Are you sure you want to archive/delete this monitor?")) return;
+    const handleDelete = (jobId) => {
+        setJobToDelete(jobId);
+        setShowDeleteModal(true);
+    };
+
+    const confirmDelete = async () => {
+        if (!jobToDelete) return;
 
         if (isConfigured) {
             const path = `artifacts/${window.__app_id}/users/${user.uid}/ticket_monitors`;
-            await deleteDoc(doc(db, path, jobId));
+            await deleteDoc(doc(db, path, jobToDelete));
         } else {
-            mockDb.deleteJob(jobId);
+            mockDb.deleteJob(jobToDelete);
         }
+
+        setShowDeleteModal(false);
+        setJobToDelete(null);
     };
 
     // --- DESIGN SYSTEM CONSTANTS ---
@@ -365,7 +412,7 @@ const App = () => {
             </main >
 
             {/* FOOTER */}
-            < footer className="border-t-2 border-black bg-white p-4 text-[10px] font-bold uppercase tracking-widest flex justify-between items-center" >
+            <footer className="border-t-2 border-black bg-white p-4 text-[10px] font-bold uppercase tracking-widest flex justify-between items-center">
                 <div>
                     <span className="bg-black text-white px-1 mr-2">TE-STYLE</span>
                     Ticket Scout Systems © 2025
@@ -373,7 +420,15 @@ const App = () => {
                 <div className="hidden md:block text-gray-400">
                     Designed for High-Performance Monitoring
                 </div>
-            </footer >
+            </footer>
+
+            <ConfirmationModal
+                isOpen={showDeleteModal}
+                onClose={() => setShowDeleteModal(false)}
+                onConfirm={confirmDelete}
+                title="Archive Monitor?"
+                message="Are you sure you want to archive this monitor? This will stop all tracking and notifications for this event. This action cannot be undone."
+            />
         </div >
     );
 };
