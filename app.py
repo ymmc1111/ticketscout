@@ -68,9 +68,9 @@ def index():
       window.__app_id = "ticket-scout-ymmc"; // Updated app_id for clarity
       window.__firebase_config = {{
         apiKey: "{os.getenv('FIREBASE_API_KEY', 'YOUR_API_KEY')}",
-        authDomain: "ymmc-2d266.firebaseapp.com",
-        projectId: "ymmc-2d266",
-        storageBucket: "ymmc-2d266.appspot.com",
+        authDomain: "black-hulling-359518.firebaseapp.com",
+        projectId: "black-hulling-359518",
+        storageBucket: "black-hulling-359518.appspot.com",
         messagingSenderId: "{os.getenv('FIREBASE_MESSAGING_SENDER_ID', 'YOUR_SENDER_ID')}",
         appId: "{os.getenv('FIREBASE_APP_ID', 'YOUR_APP_ID')}"
       }};

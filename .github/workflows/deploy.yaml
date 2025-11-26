@@ -6,7 +6,7 @@ on:
       - main
 
 env:
-  PROJECT_ID: ymmc-2d266
+  PROJECT_ID: black-hulling-359518
   SERVICE_NAME: ticket-scout
   REGION: us-central1
 
@@ -25,8 +25,8 @@ jobs:
       - id: 'auth'
         uses: 'google-github-actions/auth@v2'
         with:
-          workload_identity_provider: 'projects/559972929352/locations/global/workloadIdentityPools/github-actions-pool/providers/github-provider'
-          service_account: 'github-deployer-sa@ymmc-2d266.iam.gserviceaccount.com'
+          workload_identity_provider: 'projects/95093689493/locations/global/workloadIdentityPools/github-actions-pool/providers/github-provider'
+          service_account: 'github-deployer-sa@black-hulling-359518.iam.gserviceaccount.com'
 
       - name: Deploy to Cloud Run
         uses: 'google-github-actions/deploy-cloudrun@v2'
