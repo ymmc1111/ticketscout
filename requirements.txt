@@ -1,0 +1,6 @@
+flask
+firebase-admin
+requests
+python-dotenv
+twilio
+tenacity
