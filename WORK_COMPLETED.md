@@ -25,6 +25,12 @@
 - **Implemented Free Gmail Notifications:** The `send_notification` function in `worker.py` was refactored to use Python's built-in `smtplib` library to send email alerts via user-configured Gmail SMTP credentials.
 - **Implemented Free FCM Push Notifications:** Added logic and `firebase_admin.messaging` to `worker.py` to send free, cross-platform push notifications (to Android/iOS/Web) when a ticket is found, relying on the user's stored FCM token.
 
+### 4. Domain & DNS Configuration (scout.ymmc.ai)
+- **Verified Domain Ownership**: Verified ownership of `ymmc.ai` for the Google Cloud project `black-hulling-359518` by adding a Google Site Verification TXT record to the Cloud DNS zone.
+- **Created Domain Mapping**: Successfully mapped the custom subdomain `scout.ymmc.ai` to the `ticket-scout` Cloud Run service in `us-west1`.
+- **Configured DNS Records**: Automatically added the required CNAME record (`scout.ymmc.ai` -> `ghs.googlehosted.com`) to the Cloud DNS zone to enable traffic routing and SSL certificate provisioning.
+- **SSL Certificate**: Initiated the managed SSL certificate provisioning process. The certificate is currently in `CertificatePending` state and will automatically activate once Google verifies the new DNS records.
+
 ## Needs Checklist
 
 ### Immediate Testing
