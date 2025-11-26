@@ -146,6 +146,7 @@ const App = () => {
         if (!user || !eventId || !contact) return;
 
         setLoading(true);
+        console.log("Submitting job...", { eventId, contact, user });
         try {
             const jobData = {
                 eventID: eventId,
@@ -158,10 +159,13 @@ const App = () => {
             };
 
             if (isConfigured) {
+                console.log("Saving to Firestore...", jobData);
                 const path = `artifacts/${window.__app_id}/users/${user.uid}/ticket_monitors`;
-                await addDoc(collection(db, path), jobData);
+                const docRef = await addDoc(collection(db, path), jobData);
+                console.log("Document written with ID: ", docRef.id);
             } else {
                 // Mock Add
+                console.log("Saving to Mock DB...", jobData);
                 await new Promise(r => setTimeout(r, 800)); // Fake network delay
                 mockDb.addJob({ ...jobData, id: `local-${Date.now()}` });
             }
@@ -170,6 +174,7 @@ const App = () => {
             setContact("");
         } catch (err) {
             console.error("Error adding job:", err);
+            alert("Error adding job: " + err.message); // Add visible alert
         }
         setLoading(false);
     };
