@@ -24,7 +24,7 @@ except Exception as e:
 TICKETMASTER_API_KEY = os.getenv("TICKETMASTER_API_KEY", "YOUR_TICKETMASTER_API_KEY")
 MOCK_ROOT_COLLECTION = os.getenv("MOCK_ROOT_COLLECTION", "worker_monitor_jobs")
 
-# Gmail Credentials (REPLACES Twilio)
+# Gmail Credentials
 GMAIL_USER = os.getenv("GMAIL_USER")
 GMAIL_APP_PASSWORD = os.getenv("GMAIL_APP_PASSWORD")
 
