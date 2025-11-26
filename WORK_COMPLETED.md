@@ -38,10 +38,10 @@
 - [ ] **Verify New Job Creation**: Test adding a new job via the "Input\_Module.01" form to ensure the mock data store handles additions correctly.
 
 ### Deployment & Configuration (CRITICAL)
-- [ ] **Deploy Data Sync Pipe:** Deploy the **`data_sync.py`** file as a new Google Cloud Function with an `onCreate` trigger on the Firestore path: `artifacts/{appId}/users/{userId}/ticket_monitors/{monitorId}`.
+- [x] **Deploy Data Sync Pipe:** Deploy the **`data_sync.py`** file as a new Google Cloud Function with an `onCreate` trigger on the Firestore path: `artifacts/{appId}/users/{userId}/ticket_monitors/{monitorId}`.
 - [ ] **Client-Side FCM Implementation:** Implement the client-side logic in `App.jsx` and any mobile wrapper to retrieve the unique **FCM device token** and save it to the user's document in Firestore (linked to their `userId`).
-- [ ] **Deploy Worker:** Deploy the updated `worker.py` to Google Cloud Functions.
-- [ ] **Schedule Worker:** Set up Google Cloud Scheduler to trigger the worker function periodically.
+- [x] **Deploy Worker:** Deploy the updated `worker.py` to Google Cloud Functions.
+- [x] **Schedule Worker:** Set up Google Cloud Scheduler to trigger the worker function periodically.
 - [ ] **Secrets Management:**
     - [ ] Set **`GMAIL_USER`** and **`GMAIL_APP_PASSWORD`** (App Password, not your main password) in the `worker.py` environment variables.
     - [ ] Set `TICKETMASTER_API_KEY` in Cloud Function environment variables.

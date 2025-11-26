@@ -3,3 +3,4 @@ firebase-admin
 requests
 python-dotenv
 tenacity
+google-cloud-firestore
