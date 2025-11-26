@@ -391,9 +391,9 @@ const App = () => {
                                             <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Current Status</div>
                                             <div className={cn(
                                                 "text-sm font-bold uppercase inline-block border border-black px-2 py-1 mb-2",
-                                                isAvailable ? "bg-[#FF4500] text-white" : "bg-white text-black"
+                                                job.status === 'ACTIVE' ? "bg-green-500 text-white" : "bg-red-500 text-white"
                                             )}>
-                                                {availability.status ? availability.status.replace(/_/g, " ") : "WAITING..."}
+                                                {job.status === 'ACTIVE' ? "RUNNING" : "RUN"}
                                             </div>
 
                                             <div className="flex justify-between items-end border-t border-gray-300 pt-2">
